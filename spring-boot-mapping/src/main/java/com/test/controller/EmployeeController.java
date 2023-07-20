@@ -3,7 +3,6 @@ package com.test.controller;
 import com.test.dto.EmployeeDTO;
 import com.test.exception.EmployeeInactiveException;
 import com.test.exception.EmployeeNotFoundException;
-import com.test.model.Employee;
 import com.test.service.EmployeeService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,7 +10,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -87,16 +85,27 @@ public class EmployeeController {
     }
 
     @GetMapping("/getbyid/{employeeId}")
-    public ResponseEntity<EmployeeDTO> getDataByEmployeeId(@PathVariable(value = "employeeId")
-                                                               Long empId) throws EmployeeNotFoundException {
+    public ResponseEntity<EmployeeDTO> getDataByEmployeeId(@PathVariable(value = "employeeId") Long empId) throws EmployeeNotFoundException {
         try {
             EmployeeDTO employeeDTO = employeeService.getDataById(empId);
             return new ResponseEntity<>(employeeDTO, HttpStatus.OK);
-        }catch (EmployeeNotFoundException e) {
+        } catch (EmployeeNotFoundException e) {
             // Handle the exception or rethrow it
             throw new RuntimeException(e);
         } catch (Exception e) {
             // Handle the exception or rethrow it
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to Get employee data", e);
+        }
+    }
+
+    @GetMapping("/getbyname/{employee-name}")
+    public ResponseEntity<EmployeeDTO> getDataByName(@PathVariable(value = "employee-name") String name) {
+        try {
+            EmployeeDTO employeeDTO = employeeService.getDataByName(name);
+            return new ResponseEntity<>(employeeDTO, HttpStatus.OK);
+        } catch (EmployeeNotFoundException e) {
+            throw new RuntimeException(e);
+        } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to Get employee data", e);
         }
 

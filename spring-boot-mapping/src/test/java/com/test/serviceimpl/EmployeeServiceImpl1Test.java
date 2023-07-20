@@ -165,6 +165,7 @@ public class EmployeeServiceImpl1Test {
         EmployeeDTO result = employeeService.getDataById(empId);
         Assertions.assertEquals(employeeDTO,result);
         Assertions.assertEquals(employeeDTO.getEmpId(), result.getEmpId());
+        Mockito.verify(employeeRepository).findById(empId);
 
     }
     @Test

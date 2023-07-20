@@ -21,4 +21,6 @@ public interface EmployeeService {
     List<EmployeeDTO> getDataByAnyInput(EmployeeDTO employee);
 
     EmployeeDTO getDataById(Long empId) throws EmployeeNotFoundException;
+
+    EmployeeDTO getDataByName(String name) throws EmployeeNotFoundException;
 }

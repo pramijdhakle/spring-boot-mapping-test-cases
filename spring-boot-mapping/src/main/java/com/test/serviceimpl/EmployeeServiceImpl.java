@@ -116,6 +116,18 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     }
 
+    @Override
+    public EmployeeDTO getDataByName(String name) throws EmployeeNotFoundException {
+        Optional<Employee> employee = employeeRepository.findDataByName(name);
+        if (employee.isPresent()){
+            Employee employee1 = employee.get();
+            return modelMapper.map(employee1, EmployeeDTO.class);
+        }else {
+            throw new EmployeeNotFoundException("Employee not found with Name: " + name);
+        }
+
+    }
+
     /**
      * @param employee
      * @return
