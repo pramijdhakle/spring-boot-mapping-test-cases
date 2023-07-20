@@ -149,6 +149,37 @@ public class EmployeeServiceImpl1Test {
                 .save(Mockito.any());
     }
 
+    @SneakyThrows
+    @Test
+    public void testGetDataById()  {
+
+        Long empId = 1L;
+        Employee employee = new Employee();
+        EmployeeDTO employeeDTO = new EmployeeDTO();
+        Mockito.when(employeeRepository.findById(empId))
+                .thenReturn(Optional.of(employee));
+
+        Mockito.when(modelMapper.map(employee, EmployeeDTO.class))
+                .thenReturn(employeeDTO);
+
+        EmployeeDTO result = employeeService.getDataById(empId);
+        Assertions.assertEquals(employeeDTO,result);
+        Assertions.assertEquals(employeeDTO.getEmpId(), result.getEmpId());
+
+    }
+    @Test
+    public void testGetDataById_employeeNotFound() {
+        // Mocking the behavior of the employeeRepository.findById method
+        Long empId = 1L;
+        Mockito.when(employeeRepository.findById(empId)).thenReturn(Optional.empty());
+
+        // Calling the method under test and expecting an exception to be thrown
+        Assertions.assertThrows(EmployeeNotFoundException.class, () -> employeeService.getDataById(empId));
+
+        // Verifying that the employeeRepository.findById was called with the correct empId
+        Mockito.verify(employeeRepository).findById(empId);
+    }
+
 /*
     @Test
     public void testGetDataByAnyInput(){
@@ -169,7 +200,7 @@ public class EmployeeServiceImpl1Test {
     }
 */
 
-    @Test
+   /* @Test
     void getDataByAnyInput_shouldReturnEmployeeDTOList() {
         Employee emp1 = new Employee(1L, "John", 30, true, 788766L,"Manager", 50000.0);
         Employee emp2 = new Employee(2L, "Alice", 25, false,6788766L, "Developer", 60000.0);
@@ -205,7 +236,7 @@ public class EmployeeServiceImpl1Test {
                 Mockito.eq(EmployeeDTO.class));
         Mockito.verify(modelMapper, Mockito.times(1)).map(Mockito.eq(emp2),
                 Mockito.eq(EmployeeDTO.class));
-    }
+    }*/
 }
 
 

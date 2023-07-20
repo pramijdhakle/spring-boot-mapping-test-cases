@@ -45,8 +45,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Override
     public List<EmployeeDTO> getAllEmployee() {
         List<Employee> employees = employeeRepository.findAll();
-        List<EmployeeDTO> employeeDTOList = employees.stream().map(employee ->
-                modelMapper.map(employee, EmployeeDTO.class)).collect(Collectors.toList());
+        List<EmployeeDTO> employeeDTOList = employees.stream().map(employee -> modelMapper.map(employee, EmployeeDTO.class)).collect(Collectors.toList());
         return employeeDTOList;
     }
 
@@ -98,17 +97,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     public List<EmployeeDTO> getDataByAnyInput(EmployeeDTO employee) {
         List<Employee> employees = employeeRepository.findAll();
 
-        List<EmployeeDTO> employeeDTO1 = employees.stream().map(mapToDto ->
-                        modelMapper.map(mapToDto, EmployeeDTO.class))
-                .filter(employeeDTO -> employeeDTO.getEmpId() == employee.getEmpId()
-                        || employeeDTO.getName().equals(employee.getName())
-                        || employeeDTO.getActive().equals(employee.getActive())
-                        || employeeDTO.getAge() == employee.getAge()
-                        || employeeDTO.getDesignation().equals(employee.getDesignation())
-                        || employeeDTO.getPhoneNumber() == employee.getPhoneNumber()
-                        || employeeDTO.getSalary() == employee.getSalary()
-                        || employeeDTO.getAddresses().equals(employee.getAddresses()))
-                .collect(Collectors.toList());
+        List<EmployeeDTO> employeeDTO1 = employees.stream().map(mapToDto -> modelMapper.map(mapToDto, EmployeeDTO.class)).filter(employeeDTO -> employeeDTO.getEmpId() == employee.getEmpId() || employeeDTO.getName().equals(employee.getName()) || employeeDTO.getActive().equals(employee.getActive()) || employeeDTO.getAge() == employee.getAge() || employeeDTO.getDesignation().equals(employee.getDesignation()) || employeeDTO.getPhoneNumber() == employee.getPhoneNumber() || employeeDTO.getSalary() == employee.getSalary() || employeeDTO.getAddresses().equals(employee.getAddresses())).collect(Collectors.toList());
 
         return employeeDTO1;
     }
@@ -116,10 +105,11 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Override
     public EmployeeDTO getDataById(Long empId) throws EmployeeNotFoundException {
         Optional<Employee> employee = employeeRepository.findById(empId);
-        if (employee.isPresent()){
-            EmployeeDTO employeeDTO = modelMapper.map(employee, EmployeeDTO.class);
-            return employeeDTO;
-        }else {
+        if (employee.isPresent()) {
+            Employee employee2 = employee.get();
+            return modelMapper.map(employee2, EmployeeDTO.class);
+
+        } else {
             throw new EmployeeNotFoundException("Employee not found with empId: " + empId);
         }
 

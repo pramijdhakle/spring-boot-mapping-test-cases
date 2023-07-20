@@ -23,13 +23,4 @@ public class EmployeeDTO {
     private Double salary = Math.random() * 100000;
     private List<Address> addresses;
 
-    public EmployeeDTO(Long empId, String name, Integer age, Boolean active, Long phoneNumber, String designation, Double salary) {
-        this.empId = empId;
-        this.name = name;
-        this.age = age;
-        this.active = active;
-        this.phoneNumber = phoneNumber;
-        this.designation = designation;
-        this.salary = salary;
-    }
 }
