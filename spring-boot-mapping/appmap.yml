@@ -1,0 +1,4 @@
+name: "spring-boot-mapping"
+appmap_dir: "target/appmap"
+packages:
+- path: "com.test"
