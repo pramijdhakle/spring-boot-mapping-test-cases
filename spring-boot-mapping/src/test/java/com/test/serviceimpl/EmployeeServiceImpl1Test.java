@@ -181,6 +181,38 @@ public class EmployeeServiceImpl1Test {
         Mockito.verify(employeeRepository).findById(empId);
     }
 
+    @SneakyThrows
+    @Test
+    public void testGetDataByName(){
+        String name = "Pramij";
+        Employee employee = new Employee();
+        EmployeeDTO employeeDTO = new EmployeeDTO();
+        Mockito.when(employeeRepository.findDataByName(name))
+                .thenReturn(Optional.of(employee));
+
+        Mockito.when(modelMapper.map(employee, EmployeeDTO.class))
+                .thenReturn(employeeDTO);
+
+        EmployeeDTO result = employeeService.getDataByName(name);
+        Assertions.assertEquals(employeeDTO, result);
+        Mockito.verify(employeeRepository).findDataByName(name);
+    }
+
+    @Test
+    public void testGetDataByName_WhenEmployeeNotFound(){
+        String name = "Priyanka";
+        Employee employee = new Employee();
+        Optional<Employee> optionalEmployee = Optional.empty();
+
+        Mockito.when(employeeRepository.findDataByName(name))
+                .thenReturn(optionalEmployee);
+
+        Assertions.assertThrows(EmployeeNotFoundException.class,
+                ()-> employeeService.getDataByName(name));
+
+        Mockito.verify(employeeRepository).findDataByName(name);
+    }
+
 /*
     @Test
     public void testGetDataByAnyInput(){
