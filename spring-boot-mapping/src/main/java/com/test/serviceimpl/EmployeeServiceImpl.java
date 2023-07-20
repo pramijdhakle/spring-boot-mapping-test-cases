@@ -113,6 +113,19 @@ public class EmployeeServiceImpl implements EmployeeService {
         return employeeDTO1;
     }
 
+    @Override
+    public EmployeeDTO getDataById(Long empId) throws EmployeeNotFoundException {
+        Optional<Employee> employee = employeeRepository.findById(empId);
+        if (employee.isPresent()){
+            EmployeeDTO employeeDTO = modelMapper.map(employee, EmployeeDTO.class);
+            return employeeDTO;
+        }else {
+            throw new EmployeeNotFoundException("Employee not found with empId: " + empId);
+        }
+
+
+    }
+
     /**
      * @param employee
      * @return

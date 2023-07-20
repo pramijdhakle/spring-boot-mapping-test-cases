@@ -84,4 +84,20 @@ public class EmployeeController {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to search employee data", e);
         }
     }
+
+    @GetMapping("/getbyid/{employeeId}")
+    public ResponseEntity<EmployeeDTO> getDataByEmployeeId(@PathVariable(value = "employeeId")
+                                                               Long empId) throws EmployeeNotFoundException {
+        try {
+            EmployeeDTO employeeDTO = employeeService.getDataById(empId);
+            return new ResponseEntity<>(employeeDTO, HttpStatus.OK);
+        }catch (EmployeeNotFoundException e) {
+            // Handle the exception or rethrow it
+            throw new RuntimeException(e);
+        } catch (Exception e) {
+            // Handle the exception or rethrow it
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to delete employee data", e);
+        }
+
+    }
 }

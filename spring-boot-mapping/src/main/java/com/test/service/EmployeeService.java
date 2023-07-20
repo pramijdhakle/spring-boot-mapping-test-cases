@@ -18,4 +18,6 @@ public interface EmployeeService {
     EmployeeDTO updateData(Long empId, EmployeeDTO employeeDTO) throws EmployeeNotFoundException;
 
     List<EmployeeDTO> getDataByAnyInput(EmployeeDTO employee);
+
+    EmployeeDTO getDataById(Long empId) throws EmployeeNotFoundException;
 }
