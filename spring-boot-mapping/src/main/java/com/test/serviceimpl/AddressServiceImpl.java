@@ -1,6 +1,8 @@
 package com.test.serviceimpl;
 
 import com.test.dto.AddressDTO;
+import com.test.exception.AddressMappingException;
+import com.test.exception.AddressNotFoundException;
 import com.test.exception.EmployeeNotFoundException;
 import com.test.model.Address;
 import com.test.model.Employee;
@@ -30,30 +32,40 @@ public class AddressServiceImpl implements AddressService {
     /**
      * @param empId
      * @param addressDTO
-     * @throws EmployeeNotFoundException if the employee with the given empId is not found
      * @return
+     * @throws EmployeeNotFoundException if the employee with the given empId is not found
      */
     @Override
     public AddressDTO add(Long empId, AddressDTO addressDTO) throws EmployeeNotFoundException {
         Optional<Employee> employee = employeeRepository.findById(empId);
         if (employee.isEmpty()) {
+            Address address = modelMapper.map(addressDTO, Address.class);
+            address.setEmployee(employee.get());
+            Address saveAddress = addressRepository.save(address);
+
+            return modelMapper.map(saveAddress, AddressDTO.class);
+        }
+        else {
             throw new EmployeeNotFoundException("Employee not found with empId: " + empId);
         }
-        Address address = modelMapper.map(addressDTO, Address.class);
-        address.setEmployee(employee.get());
-        Address saveAddress = addressRepository.save(address);
 
-        return modelMapper.map(saveAddress, AddressDTO.class);
     }
 
     /**
      * @return
      */
     @Override
-    public List<AddressDTO> addressDtoList() {
-        List<Address> addresses = addressRepository.findAll();
-        List<AddressDTO> addressDTOS = addresses.stream().map(mapToDTO -> modelMapper.map(mapToDTO, AddressDTO.class)).collect(Collectors.toList());
-        return addressDTOS;
+    public List<AddressDTO> addressDtoList() throws Exception {
+       try {
+           List<Address> addresses = addressRepository.findAll();
+           if (addresses.isEmpty()){
+               throw new AddressNotFoundException("No addresses found.");
+           }
+           return addresses.stream().
+                   map(mapToDTO -> modelMapper.map(mapToDTO, AddressDTO.class)).collect(Collectors.toList());
+       }catch (Exception e){
+           throw new AddressMappingException("Error while mapping Address entities to DTOs.");
+       }
     }
 
     /**
@@ -64,16 +76,26 @@ public class AddressServiceImpl implements AddressService {
     public List<AddressDTO> addressDtos(Long empId) throws EmployeeNotFoundException {
         try {
             Optional<Employee> employee = employeeRepository.findById(empId);
-            if (employee.isEmpty()) {
+            if (employee.isPresent()) {
+                List<Address> byEmpId = addressRepository.findByEmployee(employee.get());
+                List<AddressDTO> addressDTOList = byEmpId.stream().map(mapToDto -> modelMapper.map(mapToDto, AddressDTO.class)).collect(Collectors.toList());
+                return addressDTOList;
+            }else {
                 throw new EmployeeNotFoundException("Employee not found with empId: " + empId);
             }
-
-            List<Address> byEmpId = addressRepository.findByEmployee(employee.get());
-            List<AddressDTO> addressDTOList = byEmpId.stream().map(mapToDto -> modelMapper.map(mapToDto, AddressDTO.class)).collect(Collectors.toList());
-            return addressDTOList;
         } catch (Exception e) {
             // Handle the exception or rethrow it
             throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public AddressDTO getAddressById(Long id) throws AddressNotFoundException {
+        Optional<Address> address = addressRepository.findById(id);
+        if (address.isPresent()) {
+            return modelMapper.map(address.get(), AddressDTO.class);
+        } else {
+            throw new AddressNotFoundException("Address not found with id : " + id);
         }
     }
 }

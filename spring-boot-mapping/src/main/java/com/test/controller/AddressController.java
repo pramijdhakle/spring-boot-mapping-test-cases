@@ -1,11 +1,14 @@
 package com.test.controller;
 
 import com.test.dto.AddressDTO;
+import com.test.exception.AddressMappingException;
+import com.test.exception.AddressNotFoundException;
 import com.test.exception.EmployeeNotFoundException;
 import com.test.service.AddressService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -27,16 +30,23 @@ public class AddressController {
             return new ResponseEntity<>(addressDTO1, HttpStatus.CREATED);
         } catch (EmployeeNotFoundException e) {
             throw new RuntimeException(e);
-        }catch (Exception e){
+        } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
     }
 
     @GetMapping("/getAddress")
-    public ResponseEntity<List<AddressDTO>> getAllAddresses() {
-        List<AddressDTO> addressDTOS = addressService.addressDtoList();
-        return new ResponseEntity<>(addressDTOS, HttpStatus.OK);
+    public ResponseEntity<List<AddressDTO>> getAllAddresses() throws Exception {
+        List<AddressDTO> addressDTOS = null;
+        try {
+            addressDTOS = addressService.addressDtoList();
+            return new ResponseEntity<>(addressDTOS, HttpStatus.OK);
+        }catch (AddressNotFoundException e){
+            throw new AddressNotFoundException("No addresses found.");
+        }catch (AddressMappingException e){
+            throw new AddressMappingException("Error while mapping Address entities to DTOs.");
+        }
     }
 
     @GetMapping("/employee/{employeeId}/addresses")
@@ -47,9 +57,21 @@ public class AddressController {
             return new ResponseEntity<>(addressDTOS, HttpStatus.OK);
         } catch (EmployeeNotFoundException e) {
             throw new RuntimeException(e);
-        }catch (Exception e){
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (Exception e) {
+            throw  new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,"Failed to search Address data", e);
         }
 
+    }
+
+    @GetMapping("/getbyaddressid/{address-id}")
+    public ResponseEntity<AddressDTO> getDataByAddressId(@PathVariable("address-id") Long id) {
+        try {
+            AddressDTO addressDTO = addressService.getAddressById(id);
+            return new ResponseEntity<>(addressDTO, HttpStatus.OK);
+        } catch (AddressNotFoundException e) {
+            throw new RuntimeException(e);
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to search Address data", e);
+        }
     }
 }
