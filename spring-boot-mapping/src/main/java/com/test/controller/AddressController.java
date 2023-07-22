@@ -64,9 +64,10 @@ public class AddressController {
     }
 
     @GetMapping("/getbyaddressid/{address-id}")
-    public ResponseEntity<AddressDTO> getDataByAddressId(@PathVariable("address-id") Long id) {
+    public ResponseEntity<AddressDTO> getDataByAddressId(@PathVariable("address-id") Long id) throws AddressNotFoundException {
+        AddressDTO addressDTO = null;
         try {
-            AddressDTO addressDTO = addressService.getAddressById(id);
+             addressDTO = addressService.getAddressById(id);
             return new ResponseEntity<>(addressDTO, HttpStatus.OK);
         } catch (AddressNotFoundException e) {
             throw new RuntimeException(e);

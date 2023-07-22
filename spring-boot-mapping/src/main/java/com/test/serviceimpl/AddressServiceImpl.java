@@ -44,8 +44,7 @@ public class AddressServiceImpl implements AddressService {
             Address saveAddress = addressRepository.save(address);
 
             return modelMapper.map(saveAddress, AddressDTO.class);
-        }
-        else {
+        } else {
             throw new EmployeeNotFoundException("Employee not found with empId: " + empId);
         }
 
@@ -56,16 +55,15 @@ public class AddressServiceImpl implements AddressService {
      */
     @Override
     public List<AddressDTO> addressDtoList() throws Exception {
-       try {
-           List<Address> addresses = addressRepository.findAll();
-           if (addresses.isEmpty()){
-               throw new AddressNotFoundException("No addresses found.");
-           }
-           return addresses.stream().
-                   map(mapToDTO -> modelMapper.map(mapToDTO, AddressDTO.class)).collect(Collectors.toList());
-       }catch (Exception e){
-           throw new AddressMappingException("Error while mapping Address entities to DTOs.");
-       }
+        try {
+            List<Address> addresses = addressRepository.findAll();
+            if (addresses.isEmpty()) {
+                throw new AddressNotFoundException("No addresses found.");
+            }
+            return addresses.stream().map(mapToDTO -> modelMapper.map(mapToDTO, AddressDTO.class)).collect(Collectors.toList());
+        } catch (Exception e) {
+            throw new AddressMappingException("Error while mapping Address entities to DTOs.");
+        }
     }
 
     /**
@@ -80,7 +78,7 @@ public class AddressServiceImpl implements AddressService {
                 List<Address> byEmpId = addressRepository.findByEmployee(employee.get());
                 List<AddressDTO> addressDTOList = byEmpId.stream().map(mapToDto -> modelMapper.map(mapToDto, AddressDTO.class)).collect(Collectors.toList());
                 return addressDTOList;
-            }else {
+            } else {
                 throw new EmployeeNotFoundException("Employee not found with empId: " + empId);
             }
         } catch (Exception e) {
@@ -91,11 +89,13 @@ public class AddressServiceImpl implements AddressService {
 
     @Override
     public AddressDTO getAddressById(Long id) throws AddressNotFoundException {
+
         Optional<Address> address = addressRepository.findById(id);
         if (address.isPresent()) {
             return modelMapper.map(address.get(), AddressDTO.class);
         } else {
             throw new AddressNotFoundException("Address not found with id : " + id);
         }
+
     }
 }

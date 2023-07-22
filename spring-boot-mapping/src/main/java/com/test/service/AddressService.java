@@ -15,4 +15,5 @@ public interface AddressService {
     List<AddressDTO> addressDtos(Long empId) throws EmployeeNotFoundException;
 
     AddressDTO getAddressById(Long id) throws AddressNotFoundException;
+
 }
