@@ -4,6 +4,7 @@ import com.test.dto.AddressDTO;
 import com.test.exception.AddressMappingException;
 import com.test.exception.AddressNotFoundException;
 import com.test.exception.EmployeeNotFoundException;
+import com.test.model.Address;
 
 import java.util.List;
 
@@ -16,4 +17,5 @@ public interface AddressService {
 
     AddressDTO getAddressById(Long id) throws AddressNotFoundException;
 
+    void updateAddress(Address address);
 }

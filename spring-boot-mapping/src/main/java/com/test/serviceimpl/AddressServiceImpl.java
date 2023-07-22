@@ -98,4 +98,10 @@ public class AddressServiceImpl implements AddressService {
         }
 
     }
+
+    @Override
+    public void updateAddress(Address address) {
+        Address address1 = new Address();
+        addressRepository.save(address);
+    }
 }

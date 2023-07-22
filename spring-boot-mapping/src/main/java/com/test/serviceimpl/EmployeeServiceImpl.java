@@ -3,8 +3,10 @@ package com.test.serviceimpl;
 import com.test.dto.EmployeeDTO;
 import com.test.exception.EmployeeInactiveException;
 import com.test.exception.EmployeeNotFoundException;
+import com.test.model.Address;
 import com.test.model.Employee;
 import com.test.repo.EmployeeRepository;
+import com.test.service.AddressService;
 import com.test.service.EmployeeService;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
@@ -18,9 +20,12 @@ public class EmployeeServiceImpl implements EmployeeService {
     private final EmployeeRepository employeeRepository;
     private final ModelMapper modelMapper;
 
-    public EmployeeServiceImpl(EmployeeRepository employeeRepository, ModelMapper modelMapper) {
+    private final AddressService addressService;
+
+    public EmployeeServiceImpl(EmployeeRepository employeeRepository, ModelMapper modelMapper, AddressService addressService) {
         this.employeeRepository = employeeRepository;
         this.modelMapper = modelMapper;
+        this.addressService = addressService;
     }
     /**
      * @param employee
@@ -84,8 +89,12 @@ public class EmployeeServiceImpl implements EmployeeService {
             existingEmployee.setDesignation(map.getDesignation());
             existingEmployee.setSalary(map.getSalary());
             existingEmployee.setPhoneNumber(map.getPhoneNumber());
-            existingEmployee.setAddresses(map.getAddresses());
             existingEmployee.setActive(existingEmployee.getActive());
+            // existingEmployee.setAddresses(map.getAddresses());
+            for (Address address : map.getAddresses()) {
+                address.setEmployee(existingEmployee);
+                addressService.updateAddress(address);
+            }
             Employee updatedEmployee = employeeRepository.save(existingEmployee);
             return modelMapper.map(updatedEmployee, EmployeeDTO.class);
         } else {
@@ -119,10 +128,10 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Override
     public EmployeeDTO getDataByName(String name) throws EmployeeNotFoundException {
         Optional<Employee> employee = employeeRepository.findDataByName(name);
-        if (employee.isPresent()){
+        if (employee.isPresent()) {
             Employee employee1 = employee.get();
             return modelMapper.map(employee1, EmployeeDTO.class);
-        }else {
+        } else {
             throw new EmployeeNotFoundException("Employee not found with Name: " + name);
         }
 
