@@ -3,10 +3,8 @@ package com.test.service;
 import com.test.dto.EmployeeDTO;
 import com.test.exception.EmployeeInactiveException;
 import com.test.exception.EmployeeNotFoundException;
-import com.test.model.Employee;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface EmployeeService {
 

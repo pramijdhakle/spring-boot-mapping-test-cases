@@ -37,15 +37,12 @@ public class AddressController {
     }
 
     @GetMapping("/getAddress")
-    public ResponseEntity<List<AddressDTO>> getAllAddresses() throws Exception {
-        List<AddressDTO> addressDTOS = null;
+    public ResponseEntity<List<AddressDTO>> getAllAddresses(){
         try {
-            addressDTOS = addressService.addressDtoList();
+            List<AddressDTO> addressDTOS = addressService.addressDtoList();
             return new ResponseEntity<>(addressDTOS, HttpStatus.OK);
-        }catch (AddressNotFoundException e){
-            throw new AddressNotFoundException("No addresses found.");
-        }catch (AddressMappingException e){
-            throw new AddressMappingException("Error while mapping Address entities to DTOs.");
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to search Address data", e);
         }
     }
 

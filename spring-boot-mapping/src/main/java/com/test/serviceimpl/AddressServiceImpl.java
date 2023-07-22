@@ -54,7 +54,7 @@ public class AddressServiceImpl implements AddressService {
      * @return
      */
     @Override
-    public List<AddressDTO> addressDtoList() throws Exception {
+    public List<AddressDTO> addressDtoList() {
         try {
             List<Address> addresses = addressRepository.findAll();
             if (addresses.isEmpty()) {
@@ -62,7 +62,7 @@ public class AddressServiceImpl implements AddressService {
             }
             return addresses.stream().map(mapToDTO -> modelMapper.map(mapToDTO, AddressDTO.class)).collect(Collectors.toList());
         } catch (Exception e) {
-            throw new AddressMappingException("Error while mapping Address entities to DTOs.");
+            throw new RuntimeException(e);
         }
     }
 
@@ -71,7 +71,7 @@ public class AddressServiceImpl implements AddressService {
      * @return
      */
     @Override
-    public List<AddressDTO> addressDtos(Long empId) throws EmployeeNotFoundException {
+    public List<AddressDTO> addressDtos(Long empId) {
         try {
             Optional<Employee> employee = employeeRepository.findById(empId);
             if (employee.isPresent()) {
