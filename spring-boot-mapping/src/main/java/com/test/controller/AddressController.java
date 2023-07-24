@@ -1,7 +1,7 @@
 package com.test.controller;
 
+import com.test.contants.Constants;
 import com.test.dto.AddressDTO;
-import com.test.exception.AddressMappingException;
 import com.test.exception.AddressNotFoundException;
 import com.test.exception.EmployeeNotFoundException;
 import com.test.service.AddressService;
@@ -29,7 +29,7 @@ public class AddressController {
             addressDTO1 = addressService.add(empId, addressDTO);
             return new ResponseEntity<>(addressDTO1, HttpStatus.CREATED);
         } catch (EmployeeNotFoundException e) {
-            throw new RuntimeException(e);
+            throw new EmployeeNotFoundException(e.getMessage());
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -37,42 +37,52 @@ public class AddressController {
     }
 
     @GetMapping("/getAddress")
-    public ResponseEntity<List<AddressDTO>> getAllAddresses() throws Exception {
+    public ResponseEntity<List<AddressDTO>> getAllAddresses() throws AddressNotFoundException {
         List<AddressDTO> addressDTOS = null;
         try {
             addressDTOS = addressService.addressDtoList();
             return new ResponseEntity<>(addressDTOS, HttpStatus.OK);
-        }catch (AddressNotFoundException e){
+        } catch (AddressNotFoundException e) {
             throw new AddressNotFoundException("No addresses found.");
-        }catch (AddressMappingException e){
-            throw new AddressMappingException("Error while mapping Address entities to DTOs.");
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, Constants.MESSAGE, e);
         }
     }
 
     @GetMapping("/employee/{employeeId}/addresses")
-    public ResponseEntity<List<AddressDTO>> addressResponse(@PathVariable(value = "employeeId") Long empId) throws EmployeeNotFoundException {
-        List<AddressDTO> addressDTOS = null;
+    public ResponseEntity<List<AddressDTO>> addressResponse(@PathVariable(value = "employeeId") Long empId) {
         try {
-            addressDTOS = addressService.addressDtos(empId);
+            List<AddressDTO> addressDTOS = addressService.getEmployeeAddress(empId);
             return new ResponseEntity<>(addressDTOS, HttpStatus.OK);
         } catch (EmployeeNotFoundException e) {
-            throw new RuntimeException(e);
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage(), e);
         } catch (Exception e) {
-            throw  new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,"Failed to search Address data", e);
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, Constants.MESSAGE, e);
         }
-
     }
 
     @GetMapping("/getbyaddressid/{address-id}")
     public ResponseEntity<AddressDTO> getDataByAddressId(@PathVariable("address-id") Long id) throws AddressNotFoundException {
         AddressDTO addressDTO = null;
         try {
-             addressDTO = addressService.getAddressById(id);
+            addressDTO = addressService.getAddressById(id);
             return new ResponseEntity<>(addressDTO, HttpStatus.OK);
         } catch (AddressNotFoundException e) {
-            throw new RuntimeException(e);
+            throw new AddressNotFoundException(e.getMessage());
         } catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to search Address data", e);
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, Constants.MESSAGE, e);
+        }
+    }
+
+    @PutMapping("/upadate-address/{address-id}")
+    public ResponseEntity<AddressDTO> updateAddress(@PathVariable(value = "address-id") Long id, @RequestBody AddressDTO addressDTO) throws AddressNotFoundException {
+        try {
+            AddressDTO addressDTO1 = addressService.updateData(id, addressDTO);
+            return new ResponseEntity<>(addressDTO1, HttpStatus.OK);
+        } catch (AddressNotFoundException e) {
+            throw new AddressNotFoundException(e.getMessage());
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, Constants.MESSAGE, e);
         }
     }
 }

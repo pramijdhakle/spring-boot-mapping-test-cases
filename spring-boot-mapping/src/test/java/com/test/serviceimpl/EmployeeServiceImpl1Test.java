@@ -61,7 +61,8 @@ public class EmployeeServiceImpl1Test {
         // Prepare
         List<Employee> employees = new ArrayList<>();
         Mockito.when(employeeRepository.findAll()).thenReturn(employees);
-        Mockito.when(modelMapper.map(Mockito.any(Employee.class), Mockito.eq(EmployeeDTO.class))).thenReturn(new EmployeeDTO());
+        Mockito.when(modelMapper.map(Mockito.any(Employee.class), Mockito.eq(EmployeeDTO.class))).
+                thenReturn(new EmployeeDTO());
         // Act
         List<EmployeeDTO> result = employeeService.getAllEmployee();
         // Assert

@@ -32,7 +32,7 @@ public class EmployeeController {
     }
 
     @GetMapping("/getAllEmployee")
-    public ResponseEntity<List<EmployeeDTO>> employees() {
+    public ResponseEntity<List<EmployeeDTO>> getAllemployees() {
         try {
             List<EmployeeDTO> employeeDTOS = employeeService.getAllEmployee();
             return new ResponseEntity<>(employeeDTOS, HttpStatus.OK);
