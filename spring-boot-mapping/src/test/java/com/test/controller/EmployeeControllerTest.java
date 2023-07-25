@@ -3,6 +3,7 @@ package com.test.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.test.dto.EmployeeDTO;
+import com.test.exception.EmployeeInactiveException;
 import com.test.exception.EmployeeNotFoundException;
 import com.test.model.Address;
 import com.test.service.EmployeeService;
@@ -10,12 +11,10 @@ import lombok.SneakyThrows;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -33,15 +32,13 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import static org.hamcrest.Matchers.*;
-import static org.springframework.http.ResponseEntity.status;
-
 
 
 public class EmployeeControllerTest {
-    private ObjectMapper objectMapper = new ObjectMapper();
-    private ObjectWriter objectWriter= objectMapper.writer();
     private static EmployeeDTO employeeDTO1;
     private static EmployeeDTO employeeDTO2;
+    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectWriter objectWriter = objectMapper.writer();
     @Mock
     private EmployeeService employeeService;
     @InjectMocks
@@ -77,7 +74,7 @@ public class EmployeeControllerTest {
                 andExpect(MockMvcResultMatchers.jsonPath("$", hasSize(2)))// "$" says -> check the entire Json
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].name", is("Sunil")));// here we check the value of 2nd[1] record, name=Sunil
 
-         // Assertions.assertEquals(200, mvcResult.getResponse().getStatus());
+        // Assertions.assertEquals(200, mvcResult.getResponse().getStatus());
 
        /* MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get("/api/v1/getAllEmployee");
         ResultActions resultActions= mockMvc.perform(requestBuilder);
@@ -121,38 +118,37 @@ public class EmployeeControllerTest {
                 .accept(MediaType.APPLICATION_JSON)
                 .content(content);
 
-      ResultActions mvcResult=  mockMvc.perform(mockRequest).andExpect(MockMvcResultMatchers.status().isCreated())
+        ResultActions mvcResult = mockMvc.perform(mockRequest).andExpect(MockMvcResultMatchers.status().isCreated())
                 .andExpect(MockMvcResultMatchers.jsonPath("$", notNullValue()))
-              .andExpect(MockMvcResultMatchers.jsonPath("$.empId").exists())
-              .andExpect(MockMvcResultMatchers.jsonPath("$.name").value(employeeDTO.getName()))
-              .andExpect(MockMvcResultMatchers.jsonPath("$.designation").value(employeeDTO.getDesignation()))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.name",is("Priyanka")));
-
-
+                .andExpect(MockMvcResultMatchers.jsonPath("$.empId").exists())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.name").value(employeeDTO.getName()))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.designation").value(employeeDTO.getDesignation()))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.name", is("Priyanka")));
 
 
     }
+
     @Test
     public void testSaveEmployee_Failure() throws Exception {
         EmployeeDTO employeeDTO = EmployeeDTO.builder()
                 // Prepare the input data (you can set invalid data to trigger an exception)
                 .name(null)
-              .build();
+                .build();
 
         Mockito.when(employeeService.saveEmployee(employeeDTO)).thenThrow(new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR));
 
         // Mock the behavior of the employeeService.saveEmployee method to throw an exception
-     //   Mockito.doThrow(new RuntimeException("Failed to save employee")).when(employeeService).saveEmployee(Mockito.any(EmployeeDTO.class));
+        //   Mockito.doThrow(new RuntimeException("Failed to save employee")).when(employeeService).saveEmployee(Mockito.any(EmployeeDTO.class));
 
         String content = objectWriter.writeValueAsString(employeeDTO);
         // Perform the HTTP POST request to /save and check the response status code
-     MvcResult mvcResult=   mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/save")
+        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/save")
                         .content(content)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isInternalServerError()).
-        andExpect(result -> result.getResolvedException().getClass().
-                equals(ResponseStatusException.class))
+                andExpect(result -> result.getResolvedException().getClass().
+                        equals(ResponseStatusException.class))
                 .andExpect(result -> result.getResolvedException().getMessage().contains("Failed to retrieve employees")).andReturn();
         Assertions.assertEquals(500, mvcResult.getResponse().getStatus());
 
@@ -164,7 +160,7 @@ public class EmployeeControllerTest {
         EmployeeDTO employeeDTO = EmployeeDTO.builder().empId(employeeId).name("Arun").age(28).build();
         Mockito.when(employeeService.getDataById(employeeDTO.getEmpId())).thenReturn(employeeDTO);
         mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/getbyid/{employeeId}", employeeId)
-                .contentType(MediaType.APPLICATION_JSON))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.empId").value(employeeDTO.getEmpId()))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.name").value(employeeDTO.getName()));
@@ -186,13 +182,13 @@ public class EmployeeControllerTest {
     }
 
     @Test
-    public void testGetDataByEmployeeId_Failure() throws Exception{
+    public void testGetDataByEmployeeId_Failure() throws Exception {
         Long employeeId = 101L;
         EmployeeDTO employeeDTO = EmployeeDTO.builder().empId(employeeId).name("Arun").age(28).build();
         Mockito.when(employeeService.getDataById(employeeDTO.getEmpId())).
                 thenThrow(new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR));
 
-        MvcResult mvcResult=   mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/getbyid/{employeeId}",employeeId)
+        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/getbyid/{employeeId}", employeeId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isInternalServerError()).
@@ -202,4 +198,114 @@ public class EmployeeControllerTest {
         Assertions.assertEquals(500, mvcResult.getResponse().getStatus());
 
     }
+
+    @Test
+    public void testGetDataByName_Success() throws Exception {
+        String employeeName = "Pramij";
+        EmployeeDTO employeeDTO = EmployeeDTO.builder().empId(123L).name(employeeName).build();
+        Mockito.when(employeeService.getDataByName(employeeDTO.getName())).thenReturn(employeeDTO);
+
+        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/getbyname/{employee-name}", employeeName)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.name").value(employeeDTO.getName()))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.empId", is(123)))
+                .andReturn();
+
+        Assertions.assertEquals(200, mvcResult.getResponse().getStatus());
+
+    }
+
+    @Test
+    public void testGetDataByName_WhenEmployeeNotFound() throws Exception {
+        String employeeName = "Raj";
+        EmployeeDTO employeeDTO = EmployeeDTO.builder().empId(123L)
+                .name(employeeName).age(28).build();
+        Mockito.when(employeeService.getDataByName(employeeDTO.getName()))
+                .thenThrow(new EmployeeNotFoundException("Employee not found"));
+
+        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/getbyname/{employee-name}", employeeName).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isNotFound())
+                .andReturn();
+
+        Assertions.assertEquals(404, mvcResult.getResponse().getStatus());
+    }
+
+    @Test
+    public void testGetDataByName_Failure() throws Exception {
+        String employeeName = "Rahul";
+        EmployeeDTO employeeDTO = EmployeeDTO.builder().empId(123L).name(employeeName).age(25).build();
+
+        Mockito.when(employeeService.getDataByName(employeeName)).thenThrow(new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR));
+
+        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/getbyname/{employee-name}", employeeName)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isInternalServerError())
+                .andReturn();
+
+        Assertions.assertEquals(500, mvcResult.getResponse().getStatus());
+    }
+
+    @Test
+    public void testUpdateData() throws Exception {
+        Long empId = 123L;
+        EmployeeDTO employeeDTO = EmployeeDTO.builder().empId(empId).name("Pramij").age(27).build();
+
+        Mockito.when(employeeService.updateData(empId, employeeDTO)).thenReturn(employeeDTO);
+        String content = objectWriter.writeValueAsString(employeeDTO);
+        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.put("/api/v1/update/{employeeId}", empId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(content).accept(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.name").value(employeeDTO.getName()))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.empId", is(123)))
+                .andReturn();
+
+        Assertions.assertEquals(200, mvcResult.getResponse().getStatus());
+    }
+
+    @Test
+    public void testUpdateData_WhenEmployeeNotFound() throws Exception{
+        Long employeeId = 123L;
+        EmployeeDTO employeeDTO = EmployeeDTO.builder().empId(employeeId).name("Priyanka").age(27).build();
+        Mockito.when(employeeService.updateData(employeeId,employeeDTO)).thenThrow(new EmployeeNotFoundException("Employee Not Found"));
+
+        String content = objectWriter.writeValueAsString(employeeDTO);
+       MvcResult mvcResult =mockMvc.perform(MockMvcRequestBuilders.put("/api/v1/update/{employeeId}",employeeId)
+                       .contentType(MediaType.APPLICATION_JSON)
+                       .content(content).accept(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isNotFound()).andReturn();
+
+       Assertions.assertEquals(404, mvcResult.getResponse().getStatus());
+    }
+
+    @Test
+    public void testUpdateData_Failure() throws Exception{
+        Long employeeId = 123L;
+        EmployeeDTO employeeDTO = EmployeeDTO.builder().empId(employeeId).name("Sunil").age(27).build();
+
+        Mockito.when(employeeService.updateData(employeeId, employeeDTO)).thenThrow(new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR));
+        String content = objectWriter.writeValueAsString(employeeDTO);
+       MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.put("/api/v1/update/{employeeId}",employeeId).contentType(MediaType.APPLICATION_JSON)
+                .content(content).accept(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isInternalServerError())
+                .andReturn();
+
+       Assertions.assertEquals(500, mvcResult.getResponse().getStatus());
+    }
+
+    @Test
+    public void testDeleteData() throws Exception {
+        Long empId = 123L;
+        // Mock the employeeService's behavior
+        Mockito.doNothing().when(employeeService).deleteEmployeeData(empId);
+
+        mockMvc.perform(MockMvcRequestBuilders.delete("/api/v1/delete/{employeeId}", empId))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.content().string("Data Deleted Successfully !!!"));
+
+        Mockito.verify(employeeService, Mockito.times(1)).deleteEmployeeData(empId);
+
+    }
+
 }

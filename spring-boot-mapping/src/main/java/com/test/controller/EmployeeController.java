@@ -43,13 +43,13 @@ public class EmployeeController {
     }
 
     @PutMapping("/update/{employeeId}")
-    public ResponseEntity<EmployeeDTO> updateData(@PathVariable(value = "employeeId") Long empId, @RequestBody EmployeeDTO employeeDTO) {
+    public ResponseEntity<EmployeeDTO> updateData(@PathVariable(value = "employeeId") Long empId, @RequestBody EmployeeDTO employeeDTO) throws EmployeeNotFoundException {
         try {
             EmployeeDTO employeeDTO1 = employeeService.updateData(empId, employeeDTO);
             return new ResponseEntity<>(employeeDTO1, HttpStatus.OK);
         } catch (EmployeeNotFoundException e) {
             // Handle the exception or rethrow it
-            throw new RuntimeException(e);
+            throw new EmployeeNotFoundException(e.getMessage());
         } catch (Exception e) {
             // Handle the exception or rethrow it
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to update employee data", e);
@@ -57,16 +57,16 @@ public class EmployeeController {
     }
 
     @DeleteMapping("/delete/{employeeId}")
-    public ResponseEntity<String> deleteData(@PathVariable(value = "employeeId") Long empId) {
+    public ResponseEntity<String> deleteData(@PathVariable(value = "employeeId") Long empId) throws EmployeeInactiveException, EmployeeNotFoundException {
         try {
             employeeService.deleteEmployeeData(empId);
             return new ResponseEntity<>("Data Deleted Successfully !!!", HttpStatus.OK);
         } catch (EmployeeInactiveException e) {
             // Handle the exception or rethrow it
-            throw new RuntimeException(e);
+            throw new EmployeeInactiveException(e.getMessage());
         } catch (EmployeeNotFoundException e) {
             // Handle the exception or rethrow it
-            throw new RuntimeException(e);
+            throw new EmployeeNotFoundException(e.getMessage());
         } catch (Exception e) {
             // Handle the exception or rethrow it
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to delete employee data", e);
@@ -99,12 +99,12 @@ public class EmployeeController {
     }
 
     @GetMapping("/getbyname/{employee-name}")
-    public ResponseEntity<EmployeeDTO> getDataByName(@PathVariable(value = "employee-name") String name) {
+    public ResponseEntity<EmployeeDTO> getDataByName(@PathVariable(value = "employee-name") String name) throws EmployeeNotFoundException {
         try {
             EmployeeDTO employeeDTO = employeeService.getDataByName(name);
             return new ResponseEntity<>(employeeDTO, HttpStatus.OK);
         } catch (EmployeeNotFoundException e) {
-            throw new RuntimeException(e);
+            throw new EmployeeNotFoundException(e.getMessage());
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to Get employee data", e);
         }
