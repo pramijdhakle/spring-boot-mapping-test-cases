@@ -10,12 +10,22 @@ import java.util.List;
 public interface AddressService {
 
     AddressDTO add(Long empId, AddressDTO addressDTO) throws EmployeeNotFoundException;
+<<<<<<< HEAD
 
     List<AddressDTO> addressDtoList();
+=======
+>>>>>>> dev4branch
 
-    List<AddressDTO> addressDtos(Long empId) throws EmployeeNotFoundException;
+    List<AddressDTO> addressDtoList() throws AddressNotFoundException;
+
+    List<AddressDTO> getEmployeeAddress(Long empId) throws EmployeeNotFoundException;
 
     AddressDTO getAddressById(Long id) throws AddressNotFoundException;
 
+<<<<<<< HEAD
     void updateAddress(Address address);
+=======
+    AddressDTO updateData(Long id, AddressDTO addressDTO) throws AddressNotFoundException;
+
+>>>>>>> dev4branch
 }
