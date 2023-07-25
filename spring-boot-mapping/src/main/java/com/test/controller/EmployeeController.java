@@ -91,7 +91,7 @@ public class EmployeeController {
             return new ResponseEntity<>(employeeDTO, HttpStatus.OK);
         } catch (EmployeeNotFoundException e) {
             // Handle the exception or rethrow it
-            throw new RuntimeException(e);
+            throw new EmployeeNotFoundException("Employee Not Found");
         } catch (Exception e) {
             // Handle the exception or rethrow it
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to Get employee data", e);
