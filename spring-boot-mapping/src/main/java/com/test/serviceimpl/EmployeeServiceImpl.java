@@ -106,7 +106,17 @@ public class EmployeeServiceImpl implements EmployeeService {
     public List<EmployeeDTO> getDataByAnyInput(EmployeeDTO employee) {
         List<Employee> employees = employeeRepository.findAll();
 
-        List<EmployeeDTO> employeeDTO1 = employees.stream().map(mapToDto -> modelMapper.map(mapToDto, EmployeeDTO.class)).filter(employeeDTO -> employeeDTO.getEmpId() == employee.getEmpId() || employeeDTO.getName().equals(employee.getName()) || employeeDTO.getActive().equals(employee.getActive()) || employeeDTO.getAge() == employee.getAge() || employeeDTO.getDesignation().equals(employee.getDesignation()) || employeeDTO.getPhoneNumber() == employee.getPhoneNumber() || employeeDTO.getSalary() == employee.getSalary() || employeeDTO.getAddresses().equals(employee.getAddresses())).collect(Collectors.toList());
+        List<EmployeeDTO> employeeDTO1 = employees.stream().
+                map(mapToDto -> modelMapper.map(mapToDto, EmployeeDTO.class)).
+                filter(employeeDTO ->
+                        employeeDTO.getEmpId() == employee.getEmpId() ||
+                                employeeDTO.getName().equals(employee.getName()) ||
+                                employeeDTO.getActive().equals(employee.getActive()) ||
+                                employeeDTO.getAge() == employee.getAge() ||
+                                employeeDTO.getDesignation().equals(employee.getDesignation()) ||
+                                employeeDTO.getPhoneNumber() == employee.getPhoneNumber() ||
+                                employeeDTO.getSalary() == employee.getSalary() ||
+                                employeeDTO.getAddresses().equals(employee.getAddresses())).collect(Collectors.toList());
 
         return employeeDTO1;
     }

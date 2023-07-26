@@ -28,6 +28,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -265,33 +266,33 @@ public class EmployeeControllerTest {
     }
 
     @Test
-    public void testUpdateData_WhenEmployeeNotFound() throws Exception{
+    public void testUpdateData_WhenEmployeeNotFound() throws Exception {
         Long employeeId = 123L;
         EmployeeDTO employeeDTO = EmployeeDTO.builder().empId(employeeId).name("Priyanka").age(27).build();
-        Mockito.when(employeeService.updateData(employeeId,employeeDTO)).thenThrow(new EmployeeNotFoundException("Employee Not Found"));
+        Mockito.when(employeeService.updateData(employeeId, employeeDTO)).thenThrow(new EmployeeNotFoundException("Employee Not Found"));
 
         String content = objectWriter.writeValueAsString(employeeDTO);
-       MvcResult mvcResult =mockMvc.perform(MockMvcRequestBuilders.put("/api/v1/update/{employeeId}",employeeId)
-                       .contentType(MediaType.APPLICATION_JSON)
-                       .content(content).accept(MediaType.APPLICATION_JSON))
+        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.put("/api/v1/update/{employeeId}", employeeId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(content).accept(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isNotFound()).andReturn();
 
-       Assertions.assertEquals(404, mvcResult.getResponse().getStatus());
+        Assertions.assertEquals(404, mvcResult.getResponse().getStatus());
     }
 
     @Test
-    public void testUpdateData_Failure() throws Exception{
+    public void testUpdateData_Failure() throws Exception {
         Long employeeId = 123L;
         EmployeeDTO employeeDTO = EmployeeDTO.builder().empId(employeeId).name("Sunil").age(27).build();
 
         Mockito.when(employeeService.updateData(employeeId, employeeDTO)).thenThrow(new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR));
         String content = objectWriter.writeValueAsString(employeeDTO);
-       MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.put("/api/v1/update/{employeeId}",employeeId).contentType(MediaType.APPLICATION_JSON)
-                .content(content).accept(MediaType.APPLICATION_JSON))
+        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.put("/api/v1/update/{employeeId}", employeeId).contentType(MediaType.APPLICATION_JSON)
+                        .content(content).accept(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isInternalServerError())
                 .andReturn();
 
-       Assertions.assertEquals(500, mvcResult.getResponse().getStatus());
+        Assertions.assertEquals(500, mvcResult.getResponse().getStatus());
     }
 
     @Test
@@ -308,4 +309,73 @@ public class EmployeeControllerTest {
 
     }
 
+    @Test
+    public void testDeleteData_WhenEmployeeNotFound() throws Exception {
+        Long empId = 123L;
+        Mockito.doThrow(new EmployeeNotFoundException("Employee Not Found")).doNothing().when(employeeService).deleteEmployeeData(empId);
+
+        mockMvc.perform(MockMvcRequestBuilders.delete("/api/v1/delete/{employeeId}", empId))
+                .andExpect(MockMvcResultMatchers.status().isNotFound());
+
+        Mockito.verify(employeeService, Mockito.times(1)).deleteEmployeeData(empId);
+    }
+
+    @Test
+    public void testDeleteData_WhenEmployeeInactive() throws Exception {
+        Long empId = 123L;
+        Mockito.doThrow(new EmployeeInactiveException("Employee is inactive"))
+                .doNothing().when(employeeService).deleteEmployeeData(empId);
+
+        mockMvc.perform(MockMvcRequestBuilders.delete("/api/v1/delete/{employeeId}", empId))
+                .andExpect(MockMvcResultMatchers.status().isNotFound());
+
+        Mockito.verify(employeeService, Mockito.times(1)).deleteEmployeeData(empId);
+    }
+
+    @Test
+    public void testDeleteData_Failure() throws Exception {
+        Long empId = 123L;
+        Mockito.doThrow(new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR))
+                .doNothing().when(employeeService).deleteEmployeeData(empId);
+
+        mockMvc.perform(MockMvcRequestBuilders.delete("/api/v1/delete/{employeeId}", empId))
+                .andExpect(MockMvcResultMatchers.status().isInternalServerError());
+
+        Mockito.verify(employeeService, Mockito.times(1)).deleteEmployeeData(empId);
+    }
+
+    @Test
+    public void testSearchByAnyInput() throws Exception {
+        EmployeeDTO employeeDTO = EmployeeDTO.builder().empId(123L).name("Pramij").age(29).active(true).designation("Developer").build();
+        List<EmployeeDTO> employeeDTOList = Arrays.asList(employeeDTO, employeeDTO1, employeeDTO2);
+        Mockito.when(employeeService.getDataByAnyInput(employeeDTO)).thenReturn(employeeDTOList);
+
+        String content = objectWriter.writeValueAsString(employeeDTO);
+
+        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/search").contentType(MediaType.APPLICATION_JSON)
+                        .content(content).accept(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].name").value(employeeDTO.getName()))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].empId", is(123)))
+                .andReturn();
+
+        Assertions.assertEquals(200, mvcResult.getResponse().getStatus());
+    }
+
+    @Test
+    public void testSearchByAnyInput_Failure() throws Exception{
+        EmployeeDTO employeeDTO = EmployeeDTO.builder().empId(123L).name("Pramij").age(29).active(true).designation("Developer").build();
+        List<EmployeeDTO> employeeDTOList = Arrays.asList(employeeDTO, employeeDTO1, employeeDTO2);
+
+        Mockito.when(employeeService.getDataByAnyInput(employeeDTO)).thenThrow(new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR));
+
+        String content = objectWriter.writeValueAsString(employeeDTO);
+       MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/search").contentType(MediaType.APPLICATION_JSON)
+               .content(content).accept(MediaType.APPLICATION_JSON)).andExpect(MockMvcResultMatchers.status().isInternalServerError())
+                       .andReturn();
+
+
+        Assertions.assertEquals(500,mvcResult.getResponse().getStatus());
+
+    }
 }
