@@ -1,7 +1,6 @@
 package com.test.repo;
 
 import com.test.model.Employee;
-import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -15,9 +14,6 @@ public class EmployeeRepositoryTest {
 
     @Mock
     private EmployeeRepository employeeRepository;
-
-    @Mock
-    private EntityManager entityManager;
 
     @BeforeEach
     public void setUp() {
