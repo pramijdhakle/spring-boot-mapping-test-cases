@@ -1,8 +1,10 @@
 package com.test.controller;
 
+import com.test.contants.Constants;
 import com.test.dto.EmployeeDTO;
 import com.test.exception.EmployeeInactiveException;
 import com.test.exception.EmployeeNotFoundException;
+import com.test.model.Employee;
 import com.test.service.EmployeeService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -114,5 +116,26 @@ public class EmployeeController {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to Get employee data", e);
         }
 
+    }
+
+    @PostMapping("/searchbyquery")
+    public ResponseEntity<List<EmployeeDTO>> getEmployeesBySearchCriteria(@RequestBody Employee employeeDTO) throws EmployeeNotFoundException {
+        try {
+            List<EmployeeDTO> employeeDTOS = employeeService.findDataBySearchEmployee(employeeDTO);
+            return new ResponseEntity<>(employeeDTOS, HttpStatus.OK);
+        }catch (EmployeeNotFoundException e) {
+            throw new EmployeeNotFoundException(e.getMessage());
+        }
+         catch (ResponseStatusException e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, Constants.ERROR);
+        }
+    }
+
+    @GetMapping("/searchbyquery2")
+    public ResponseEntity<List<EmployeeDTO>> getEmployeeData(
+            @RequestParam(value = "employeeId", required = false) Long empId ,
+            @RequestParam("pinCode") String pinCode){
+        List<EmployeeDTO> employeeDTOS = employeeService.getDataByQuery(empId, pinCode);
+        return new ResponseEntity<>(employeeDTOS, HttpStatus.OK);
     }
 }

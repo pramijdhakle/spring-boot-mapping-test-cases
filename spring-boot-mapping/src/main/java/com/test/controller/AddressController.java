@@ -23,7 +23,8 @@ public class AddressController {
     }
 
     @PostMapping("/employee/{empId}/save")
-    public ResponseEntity<AddressDTO> addNewAddress(@PathVariable(value = "empId") Long empId, @RequestBody AddressDTO addressDTO) throws EmployeeNotFoundException {
+    public ResponseEntity<AddressDTO> addNewAddress(@PathVariable(value = "empId") Long empId,
+                                                    @RequestBody AddressDTO addressDTO) throws EmployeeNotFoundException {
         AddressDTO addressDTO1 = null;
         try {
             addressDTO1 = addressService.add(empId, addressDTO);
@@ -31,7 +32,7 @@ public class AddressController {
         } catch (EmployeeNotFoundException e) {
             throw new EmployeeNotFoundException(e.getMessage());
         } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to save employee", e);
         }
 
     }
@@ -59,12 +60,12 @@ public class AddressController {
     }
 
     @GetMapping("/employee/{employeeId}/addresses")
-    public ResponseEntity<List<AddressDTO>> addressResponse(@PathVariable(value = "employeeId") Long empId) {
+    public ResponseEntity<List<AddressDTO>> addressResponse(@PathVariable(value = "employeeId") Long empId) throws EmployeeNotFoundException {
         try {
             List<AddressDTO> addressDTOS = addressService.getEmployeeAddress(empId);
             return new ResponseEntity<>(addressDTOS, HttpStatus.OK);
         } catch (EmployeeNotFoundException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage(), e);
+            throw new EmployeeNotFoundException( e.getMessage());
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, Constants.MESSAGE, e);
         }
