@@ -3,11 +3,7 @@ package com.test.service;
 import com.test.dto.EmployeeDTO;
 import com.test.exception.EmployeeInactiveException;
 import com.test.exception.EmployeeNotFoundException;
-<<<<<<< HEAD
-=======
-import com.test.model.Address;
 import com.test.model.Employee;
->>>>>>> dev4branch
 
 import java.util.List;
 
