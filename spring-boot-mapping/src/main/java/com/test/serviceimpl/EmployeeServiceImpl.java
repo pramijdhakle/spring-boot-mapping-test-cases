@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 public class EmployeeServiceImpl implements EmployeeService {
@@ -97,17 +98,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     public List<EmployeeDTO> getDataByAnyInput(EmployeeDTO employee) {
         List<Employee> employees = employeeRepository.findAll();
 
-        List<EmployeeDTO> employeeDTO1 = employees.stream().
-                map(mapToDto -> modelMapper.map(mapToDto, EmployeeDTO.class)).
-                filter(employeeDTO ->
-                        employeeDTO.getEmpId() == employee.getEmpId() ||
-                                employeeDTO.getName().equals(employee.getName()) ||
-                                employeeDTO.getActive().equals(employee.getActive()) ||
-                                employeeDTO.getAge() == employee.getAge() ||
-                                employeeDTO.getDesignation().equals(employee.getDesignation()) ||
-                                employeeDTO.getPhoneNumber() == employee.getPhoneNumber() ||
-                                employeeDTO.getSalary() == employee.getSalary() ||
-                                employeeDTO.getAddresses().equals(employee.getAddresses())).collect(Collectors.toList());
+        List<EmployeeDTO> employeeDTO1 = employees.stream().map(mapToDto -> modelMapper.map(mapToDto, EmployeeDTO.class)).filter(employeeDTO -> employeeDTO.getEmpId() == employee.getEmpId() || employeeDTO.getName().equals(employee.getName()) || employeeDTO.getActive().equals(employee.getActive()) || employeeDTO.getAge() == employee.getAge() || employeeDTO.getDesignation().equals(employee.getDesignation()) || employeeDTO.getPhoneNumber() == employee.getPhoneNumber() || employeeDTO.getSalary() == employee.getSalary() || employeeDTO.getAddresses().equals(employee.getAddresses())).collect(Collectors.toList());
 
         return employeeDTO1;
     }
@@ -129,20 +120,36 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Override
     public EmployeeDTO getDataByName(String name) throws EmployeeNotFoundException {
         Optional<Employee> employee = employeeRepository.findDataByName(name);
-        if (employee.isPresent()){
+        if (employee.isPresent()) {
             Employee employee1 = employee.get();
             return modelMapper.map(employee1, EmployeeDTO.class);
-        }else {
+        } else {
             throw new EmployeeNotFoundException("Employee not found with Name: " + name);
         }
 
     }
 
     /**
-     * @param employee
+     * @param
      * @return
-     * Get Data By Any Input and it returns Single Object
      */
+    @Override
+    public List<EmployeeDTO> findDataBySearchEmployee(Employee employee) throws EmployeeNotFoundException {
+        List<Employee> employeeList = employeeRepository.findDataBySearchEmployee(employee.getName(), employee.getAge(), employee.getDesignation(), employee.getActive());
+        if (employeeList.isEmpty()) {
+            throw new EmployeeNotFoundException("Employee not found for the given input !!");
+        } else {
+            List<EmployeeDTO> employeeDTOList =
+                    Stream.of(employeeList).flatMap(List::stream).map(entityToDto -> modelMapper.map(entityToDto, EmployeeDTO.class)).toList();
+            return employeeDTOList;
+        }
+    }
+
+}
+/**
+ * @param employee
+ * @return Get Data By Any Input and it returns Single Object
+ */
    /* @Override
     public EmployeeDTO getDataByAnyInput(EmployeeDTO employee) {
         List<Employee> employees = employeeRepository.findAll();
@@ -163,8 +170,8 @@ public class EmployeeServiceImpl implements EmployeeService {
         return employeeDTO1;
     }*/
 
-    //  Get Data By Any Input and it returns Single Object based on what we search.
-    // Using Java 8 Stream API
+//  Get Data By Any Input and it returns Single Object based on what we search.
+// Using Java 8 Stream API
 //    @Override
 //    public EmployeeDTO getDataByAnyInput(EmployeeDTO employee) {
 //        List<Employee> employees = employeeRepository.findAll();
@@ -182,4 +189,4 @@ public class EmployeeServiceImpl implements EmployeeService {
 //
 //        return employeeDTO1;
 //    }
-}
+
