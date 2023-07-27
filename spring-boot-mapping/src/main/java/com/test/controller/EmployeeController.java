@@ -125,4 +125,12 @@ public class EmployeeController {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, Constants.ERROR);
         }
     }
+
+    @GetMapping("/searchbyquery2")
+    public ResponseEntity<List<EmployeeDTO>> getEmployeeData(
+            @RequestParam(value = "employeeId", required = false) Long empId ,
+            @RequestParam("pinCode") String pinCode){
+        List<EmployeeDTO> employeeDTOS = employeeService.getDataByQuery(empId, pinCode);
+        return new ResponseEntity<>(employeeDTOS, HttpStatus.OK);
+    }
 }

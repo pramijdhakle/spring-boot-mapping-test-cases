@@ -3,6 +3,7 @@ package com.test.serviceimpl;
 import com.test.dto.EmployeeDTO;
 import com.test.exception.EmployeeInactiveException;
 import com.test.exception.EmployeeNotFoundException;
+import com.test.model.Address;
 import com.test.model.Employee;
 import com.test.repo.EmployeeRepository;
 import com.test.service.EmployeeService;
@@ -143,6 +144,16 @@ public class EmployeeServiceImpl implements EmployeeService {
                     Stream.of(employeeList).flatMap(List::stream).map(entityToDto -> modelMapper.map(entityToDto, EmployeeDTO.class)).toList();
             return employeeDTOList;
         }
+    }
+
+    /**
+     * @param
+     * @return
+     */
+    @Override
+    public List<EmployeeDTO> getDataByQuery(Long empId, String pinCode) {
+        List<Employee> employeeDTOS = employeeRepository.findDataByQuery(empId, pinCode);
+        return employeeDTOS.stream().map(x-> modelMapper.map(x, EmployeeDTO.class)).collect(Collectors.toList());
     }
 
 }
