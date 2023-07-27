@@ -51,12 +51,12 @@ public class AddressController {
     }
 
     @GetMapping("/employee/{employeeId}/addresses")
-    public ResponseEntity<List<AddressDTO>> addressResponse(@PathVariable(value = "employeeId") Long empId) {
+    public ResponseEntity<List<AddressDTO>> addressResponse(@PathVariable(value = "employeeId") Long empId) throws EmployeeNotFoundException {
         try {
             List<AddressDTO> addressDTOS = addressService.getEmployeeAddress(empId);
             return new ResponseEntity<>(addressDTOS, HttpStatus.OK);
         } catch (EmployeeNotFoundException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage(), e);
+            throw new EmployeeNotFoundException( e.getMessage());
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, Constants.MESSAGE, e);
         }
