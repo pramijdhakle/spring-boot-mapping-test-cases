@@ -18,7 +18,7 @@ import org.mockito.MockitoAnnotations;
 import org.modelmapper.ModelMapper;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -26,7 +26,7 @@ import java.util.stream.Stream;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 //@RunWith(MockitoJUnitRunner.class)
-public class EmployeeServiceImpl1Test {
+class EmployeeServiceImpl1Test {
 
     @Mock
     private EmployeeRepository employeeRepository;
@@ -43,7 +43,7 @@ public class EmployeeServiceImpl1Test {
     }
 
     @Test
-    public void testSaveEmployee() {
+    void testSaveEmployee() {
         EmployeeDTO employeeDTO = new EmployeeDTO();
         Employee employee = new Employee();
 
@@ -57,12 +57,11 @@ public class EmployeeServiceImpl1Test {
     }
 
     @Test
-    public void testGetAllEmployee() {
+    void testGetAllEmployee() {
         // Prepare
         List<Employee> employees = new ArrayList<>();
         Mockito.when(employeeRepository.findAll()).thenReturn(employees);
-        Mockito.when(modelMapper.map(Mockito.any(Employee.class), Mockito.eq(EmployeeDTO.class))).
-                thenReturn(new EmployeeDTO());
+        Mockito.when(modelMapper.map(Mockito.any(Employee.class), Mockito.eq(EmployeeDTO.class))).thenReturn(new EmployeeDTO());
         // Act
         List<EmployeeDTO> result = employeeService.getAllEmployee();
         // Assert
@@ -71,7 +70,7 @@ public class EmployeeServiceImpl1Test {
     }
 
     @Test
-    public void testDeleteEmployeeData() {
+    void testDeleteEmployeeData() {
         Long empId = 1L;
         Employee employee = new Employee();
         employee.setActive(true);
@@ -86,7 +85,7 @@ public class EmployeeServiceImpl1Test {
     }
 
     @Test
-    public void testDeleteEmployeeData_WhenEmployeeNotFound() {
+    void testDeleteEmployeeData_WhenEmployeeNotFound() {
         Long empId = 1L;
         Optional<Employee> employee = Optional.empty();
         Mockito.when(employeeRepository.findById(empId)).thenReturn(employee);
@@ -97,38 +96,31 @@ public class EmployeeServiceImpl1Test {
     }
 
     @Test
-    public void testDeleteEmployeeData_WhenEmployeeInactive() {
+    void testDeleteEmployeeData_WhenEmployeeInactive() {
         Long empId = 1L;
         Employee employee = new Employee();
         employee.setActive(false);
         Optional<Employee> optionalEmployee = Optional.of(employee);
-        Mockito.when(employeeRepository.findById(empId))
-                .thenReturn(optionalEmployee);
+        Mockito.when(employeeRepository.findById(empId)).thenReturn(optionalEmployee);
 
-        Assertions.assertThrows(EmployeeInactiveException.class,
-                () -> employeeService.deleteEmployeeData(empId));
+        Assertions.assertThrows(EmployeeInactiveException.class, () -> employeeService.deleteEmployeeData(empId));
 
         Mockito.verify(employeeRepository).findById(empId);
-        Mockito.verify(employeeRepository, Mockito.never())
-                .save(Mockito.any());
+        Mockito.verify(employeeRepository, Mockito.never()).save(Mockito.any());
 
     }
 
     @SneakyThrows
     @Test
-    public void testUpdateEmployeeData() {
+    void testUpdateEmployeeData() {
         Long empId = 1L;
         Employee employee = new Employee();
         EmployeeDTO employeeDTO = new EmployeeDTO();
 
-        Mockito.when(employeeRepository.findById(empId))
-                .thenReturn(Optional.of(employee));
-        Mockito.when(modelMapper.map(employeeDTO, Employee.class))
-                .thenReturn(employee);
-        Mockito.when(employeeRepository.save(employee))
-                .thenReturn(employee);
-        Mockito.when(modelMapper.map(employee, EmployeeDTO.class))
-                .thenReturn(employeeDTO);
+        Mockito.when(employeeRepository.findById(empId)).thenReturn(Optional.of(employee));
+        Mockito.when(modelMapper.map(employeeDTO, Employee.class)).thenReturn(employee);
+        Mockito.when(employeeRepository.save(employee)).thenReturn(employee);
+        Mockito.when(modelMapper.map(employee, EmployeeDTO.class)).thenReturn(employeeDTO);
 
         EmployeeDTO result = employeeService.updateData(empId, employeeDTO);
         Assertions.assertEquals(employeeDTO, result);
@@ -137,40 +129,36 @@ public class EmployeeServiceImpl1Test {
     }
 
     @Test
-    public void testUpdateEmployeeData_WhenEmployeeNotFound() {
+    void testUpdateEmployeeData_WhenEmployeeNotFound() {
         Long empId = 1L;
         Optional<Employee> optionalEmployee = Optional.empty();
-        Mockito.when(employeeRepository.findById(empId))
-                .thenReturn(optionalEmployee);
-        Assertions.assertThrows(EmployeeNotFoundException.class,
-                () -> employeeService.updateData(empId, new EmployeeDTO()));
+        Mockito.when(employeeRepository.findById(empId)).thenReturn(optionalEmployee);
+        Assertions.assertThrows(EmployeeNotFoundException.class, () -> employeeService.updateData(empId, new EmployeeDTO()));
 
         Mockito.verify(employeeRepository).findById(empId);
-        Mockito.verify(employeeRepository, Mockito.never())
-                .save(Mockito.any());
+        Mockito.verify(employeeRepository, Mockito.never()).save(Mockito.any());
     }
 
     @SneakyThrows
     @Test
-    public void testGetDataById()  {
+    void testGetDataById() {
 
         Long empId = 1L;
         Employee employee = new Employee();
         EmployeeDTO employeeDTO = new EmployeeDTO();
-        Mockito.when(employeeRepository.findById(empId))
-                .thenReturn(Optional.of(employee));
+        Mockito.when(employeeRepository.findById(empId)).thenReturn(Optional.of(employee));
 
-        Mockito.when(modelMapper.map(employee, EmployeeDTO.class))
-                .thenReturn(employeeDTO);
+        Mockito.when(modelMapper.map(employee, EmployeeDTO.class)).thenReturn(employeeDTO);
 
         EmployeeDTO result = employeeService.getDataById(empId);
-        Assertions.assertEquals(employeeDTO,result);
+        Assertions.assertEquals(employeeDTO, result);
         Assertions.assertEquals(employeeDTO.getEmpId(), result.getEmpId());
         Mockito.verify(employeeRepository).findById(empId);
 
     }
+
     @Test
-    public void testGetDataById_employeeNotFound() {
+    void testGetDataById_employeeNotFound() {
         // Mocking the behavior of the employeeRepository.findById method
         Long empId = 1L;
         Mockito.when(employeeRepository.findById(empId)).thenReturn(Optional.empty());
@@ -184,15 +172,13 @@ public class EmployeeServiceImpl1Test {
 
     @SneakyThrows
     @Test
-    public void testGetDataByName(){
+    void testGetDataByName() {
         String name = "Pramij";
         Employee employee = new Employee();
         EmployeeDTO employeeDTO = new EmployeeDTO();
-        Mockito.when(employeeRepository.findDataByName(name))
-                .thenReturn(Optional.of(employee));
+        Mockito.when(employeeRepository.findDataByName(name)).thenReturn(Optional.of(employee));
 
-        Mockito.when(modelMapper.map(employee, EmployeeDTO.class))
-                .thenReturn(employeeDTO);
+        Mockito.when(modelMapper.map(employee, EmployeeDTO.class)).thenReturn(employeeDTO);
 
         EmployeeDTO result = employeeService.getDataByName(name);
         Assertions.assertEquals(employeeDTO, result);
@@ -200,19 +186,46 @@ public class EmployeeServiceImpl1Test {
     }
 
     @Test
-    public void testGetDataByName_WhenEmployeeNotFound(){
+    void testGetDataByName_WhenEmployeeNotFound() {
         String name = "Priyanka";
         Employee employee = new Employee();
         Optional<Employee> optionalEmployee = Optional.empty();
 
-        Mockito.when(employeeRepository.findDataByName(name))
-                .thenReturn(optionalEmployee);
+        Mockito.when(employeeRepository.findDataByName(name)).thenReturn(optionalEmployee);
 
-        Assertions.assertThrows(EmployeeNotFoundException.class,
-                ()-> employeeService.getDataByName(name));
+        Assertions.assertThrows(EmployeeNotFoundException.class, () -> employeeService.getDataByName(name));
 
         Mockito.verify(employeeRepository).findDataByName(name);
     }
+
+    @Test
+    void testGetDataByQuery() throws EmployeeNotFoundException {
+        Long employeeId = 102L;
+        String pinCode = "441213";
+        Employee employee = Employee.builder().empId(employeeId).name("Sanket").age(29).addresses(Stream.of(new Address(2L, "Mum", pinCode, "Maha", "Ind", null), new Address(3L, "Delhi", pinCode, "12321", "Ind", null)).toList()).build();
+
+        List<Employee> employees = Collections.singletonList(employee);
+
+        Mockito.when(employeeRepository.findDataByQuery(employeeId, pinCode)).thenReturn(employees);
+
+        Mockito.when(modelMapper.map(Mockito.any(Employee.class), Mockito.eq(EmployeeDTO.class))).thenReturn(new EmployeeDTO());
+
+        List<EmployeeDTO> employeeDTOS = employeeService.getDataByQuery(employeeId, pinCode);
+
+        Assertions.assertEquals(employees.size(), employeeDTOS.size());
+        Mockito.verify(employeeRepository).findDataByQuery(employeeId, pinCode);
+    }
+
+    @Test
+    void testGetDataByQuery_failure() throws EmployeeNotFoundException {
+        Long employeeId = 102L;
+        String pinCode = "441213";
+        List<Employee> employees = new ArrayList<>();
+        Mockito.when(employeeRepository.findDataByQuery(employeeId, pinCode)).thenReturn(Collections.EMPTY_LIST);
+        Assertions.assertThrows(EmployeeNotFoundException.class, () -> employeeService.getDataByQuery(employeeId, pinCode));
+        Mockito.verify(employeeRepository).findDataByQuery(employeeId, pinCode);
+    }
+
 
 /*
     @Test
