@@ -27,5 +27,5 @@ public interface EmployeeService {
 
     List<EmployeeDTO> findDataBySearchEmployee(Employee employee) throws EmployeeNotFoundException;
 
-    List<EmployeeDTO> getDataByQuery(Long empId, String pinCode);
+    List<EmployeeDTO> getDataByQuery(Long empId, String pinCode) throws EmployeeNotFoundException;
 }

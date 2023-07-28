@@ -129,8 +129,14 @@ public class EmployeeController {
     @GetMapping("/searchbyquery2")
     public ResponseEntity<List<EmployeeDTO>> getEmployeeData(
             @RequestParam(value = "employeeId", required = false) Long empId ,
-            @RequestParam("pinCode") String pinCode){
-        List<EmployeeDTO> employeeDTOS = employeeService.getDataByQuery(empId, pinCode);
-        return new ResponseEntity<>(employeeDTOS, HttpStatus.OK);
+            @RequestParam(value = "pinCode", required = false) String pinCode) throws EmployeeNotFoundException {
+        try {
+            List<EmployeeDTO> employeeDTOS = employeeService.getDataByQuery(empId, pinCode);
+            return new ResponseEntity<>(employeeDTOS, HttpStatus.OK);
+        }catch (EmployeeNotFoundException e){
+            throw  new EmployeeNotFoundException(e.getMessage());
+        }catch (ResponseStatusException e){
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to fetch the data!!",e);
+        }
     }
 }
