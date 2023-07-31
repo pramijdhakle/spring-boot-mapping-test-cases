@@ -143,10 +143,10 @@ public class EmployeeController {
     }
 
     @GetMapping("/getByCity/{city}")
-    public ResponseEntity<List<CustomeResponse>> getByCity(@PathVariable String city) {
+    public ResponseEntity<List<EmployeeDTO>> getByCity(@PathVariable String city) {
         try {
-            List<CustomeResponse> customeResponses = employeeService.findEmployeesByCity(city);
-            return new ResponseEntity<>(customeResponses, HttpStatus.OK);
+            List<EmployeeDTO> employees = employeeService.findEmployeesByCity(city);
+            return new ResponseEntity<>(employees, HttpStatus.OK);
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Data Not found", e);
         }

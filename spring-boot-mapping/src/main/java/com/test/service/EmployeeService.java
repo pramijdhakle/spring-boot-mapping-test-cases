@@ -28,7 +28,7 @@ public interface EmployeeService {
 
     List<EmployeeDTO> getDataByQuery(Long empId, String pinCode) throws EmployeeNotFoundException;
 
-    public List<CustomeResponse> findEmployeesByCity(String city);
+    public List<EmployeeDTO> findEmployeesByCity(String city) throws EmployeeNotFoundException;
 
 
 }

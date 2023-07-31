@@ -17,10 +17,7 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.modelmapper.ModelMapper;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -226,6 +223,25 @@ class EmployeeServiceImpl1Test {
         Mockito.verify(employeeRepository).findDataByQuery(employeeId, pinCode);
     }
 
+    @Test
+    public void testFindEmployeesByCity() throws Exception {
+        String existingCity = "Pune";
+        Employee employee = Employee.builder().empId(123L).name("Pramij").age(29).addresses(Stream.of(new Address(2L, existingCity, "43232", "Maha", "Ind", null), new Address(3L, "Delhi", "65655", "12321", "Ind", null)).toList()).build();
+        List<Employee> employeeDTOS = Collections.singletonList(employee);
+        Mockito.when(employeeRepository.findEmployeesByCity(existingCity)).thenReturn(employeeDTOS);
+        Mockito.when(modelMapper.map(Mockito.any(Employee.class), Mockito.eq(EmployeeDTO.class))).thenReturn(new EmployeeDTO());
+        List<EmployeeDTO> employeeDTOList = employeeService.findEmployeesByCity(existingCity);
+        Assertions.assertEquals(1, employeeDTOList.size());
+        Assertions.assertFalse(employeeDTOList.isEmpty());
+        Mockito.verify(employeeRepository).findEmployeesByCity(existingCity);
+    }
+    @Test
+    public void testFindEmployeesByCity_failure() throws Exception{
+        String nonExistingCity = "Delhi";
+        Mockito.when(employeeRepository.findEmployeesByCity(nonExistingCity)).thenReturn(Collections.EMPTY_LIST);
+        Assertions.assertThrows(EmployeeNotFoundException.class, ()-> employeeService.findEmployeesByCity(nonExistingCity));
+        Mockito.verify(employeeRepository).findEmployeesByCity(nonExistingCity);
+    }
 
 /*
     @Test

@@ -1,6 +1,5 @@
 package com.test.serviceimpl;
 
-import com.test.dto.CustomeResponse;
 import com.test.dto.EmployeeDTO;
 import com.test.exception.EmployeeInactiveException;
 import com.test.exception.EmployeeNotFoundException;
@@ -152,16 +151,22 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Override
     public List<EmployeeDTO> getDataByQuery(Long empId, String pinCode) throws EmployeeNotFoundException {
         List<Employee> employeeDTOS = employeeRepository.findDataByQuery(empId, pinCode);
-        if (employeeDTOS.isEmpty()){
+        if (employeeDTOS.isEmpty()) {
             throw new EmployeeNotFoundException("Data is not available for the given input !!");
-        }else {
-            return Stream.of(employeeDTOS).flatMap(List::stream).map(employee -> modelMapper.map(employee,EmployeeDTO.class)).toList();
+        } else {
+            return Stream.of(employeeDTOS).flatMap(List::stream).map(employee -> modelMapper.map(employee, EmployeeDTO.class)).toList();
         }
 
     }
-    public List<CustomeResponse> findEmployeesByCity(String city) {
-        List<CustomeResponse> employees = employeeRepository.findEmployeesByCity(city);
-        return employees;
+
+    public List<EmployeeDTO> findEmployeesByCity(String city) throws EmployeeNotFoundException {
+        List<Employee> employeeDTOS = employeeRepository.findEmployeesByCity(city);
+        if (employeeDTOS.isEmpty()) {
+            throw new EmployeeNotFoundException("Data is not available for the given input !!");
+        } else {
+            return Stream.of(employeeDTOS).flatMap(List::stream).map(employee -> modelMapper.map(employee, EmployeeDTO.class)).collect(Collectors.toList());
+
+        }
     }
 
 }
