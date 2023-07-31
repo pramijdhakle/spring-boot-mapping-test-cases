@@ -1,25 +1,30 @@
 package com.test.controller;
 
 import com.test.contants.Constants;
+import com.test.dto.CustomeResponse;
 import com.test.dto.EmployeeDTO;
 import com.test.exception.EmployeeInactiveException;
 import com.test.exception.EmployeeNotFoundException;
 import com.test.model.Employee;
 import com.test.service.EmployeeService;
+import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/v1")
 public class EmployeeController {
     private final EmployeeService employeeService;
+    private final ModelMapper modelMapper;
 
-    public EmployeeController(EmployeeService employeeService) {
+    public EmployeeController(EmployeeService employeeService, ModelMapper modelMapper) {
         this.employeeService = employeeService;
+        this.modelMapper = modelMapper;
     }
 
     @PostMapping("/save")
@@ -118,25 +123,33 @@ public class EmployeeController {
         try {
             List<EmployeeDTO> employeeDTOS = employeeService.findDataBySearchEmployee(employeeDTO);
             return new ResponseEntity<>(employeeDTOS, HttpStatus.OK);
-        }catch (EmployeeNotFoundException e) {
+        } catch (EmployeeNotFoundException e) {
             throw new EmployeeNotFoundException(e.getMessage());
-        }
-         catch (ResponseStatusException e) {
+        } catch (ResponseStatusException e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, Constants.ERROR);
         }
     }
 
     @GetMapping("/searchbyquery2")
-    public ResponseEntity<List<EmployeeDTO>> getEmployeeData(
-            @RequestParam(value = "employeeId", required = false) Long empId ,
-            @RequestParam(value = "pinCode", required = false) String pinCode) throws EmployeeNotFoundException {
+    public ResponseEntity<List<EmployeeDTO>> getEmployeeData(@RequestParam(value = "employeeId", required = false) Long empId, @RequestParam(value = "pinCode", required = false) String pinCode) throws EmployeeNotFoundException {
         try {
             List<EmployeeDTO> employeeDTOS = employeeService.getDataByQuery(empId, pinCode);
             return new ResponseEntity<>(employeeDTOS, HttpStatus.OK);
-        }catch (EmployeeNotFoundException e){
-            throw  new EmployeeNotFoundException(e.getMessage());
-        }catch (ResponseStatusException e){
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to fetch the data!!",e);
+        } catch (EmployeeNotFoundException e) {
+            throw new EmployeeNotFoundException(e.getMessage());
+        } catch (ResponseStatusException e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to fetch the data!!", e);
         }
+    }
+
+    @GetMapping("/getByCity/{city}")
+    public ResponseEntity<List<CustomeResponse>> getByCity(@PathVariable String city) {
+        try {
+            List<CustomeResponse> customeResponses = employeeService.findEmployeesByCity(city);
+            return new ResponseEntity<>(customeResponses, HttpStatus.OK);
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Data Not found", e);
+        }
+
     }
 }

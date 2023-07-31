@@ -1,13 +1,12 @@
 package com.test.service;
 
+import com.test.dto.CustomeResponse;
 import com.test.dto.EmployeeDTO;
 import com.test.exception.EmployeeInactiveException;
 import com.test.exception.EmployeeNotFoundException;
-import com.test.model.Address;
 import com.test.model.Employee;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface EmployeeService {
 
@@ -28,4 +27,8 @@ public interface EmployeeService {
     List<EmployeeDTO> findDataBySearchEmployee(Employee employee) throws EmployeeNotFoundException;
 
     List<EmployeeDTO> getDataByQuery(Long empId, String pinCode) throws EmployeeNotFoundException;
+
+    public List<CustomeResponse> findEmployeesByCity(String city);
+
+
 }

@@ -1,5 +1,6 @@
 package com.test.serviceimpl;
 
+import com.test.dto.CustomeResponse;
 import com.test.dto.EmployeeDTO;
 import com.test.exception.EmployeeInactiveException;
 import com.test.exception.EmployeeNotFoundException;
@@ -157,6 +158,10 @@ public class EmployeeServiceImpl implements EmployeeService {
             return Stream.of(employeeDTOS).flatMap(List::stream).map(employee -> modelMapper.map(employee,EmployeeDTO.class)).toList();
         }
 
+    }
+    public List<CustomeResponse> findEmployeesByCity(String city) {
+        List<CustomeResponse> employees = employeeRepository.findEmployeesByCity(city);
+        return employees;
     }
 
 }
