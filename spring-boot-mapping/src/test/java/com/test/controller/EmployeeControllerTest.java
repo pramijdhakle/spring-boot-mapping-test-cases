@@ -327,4 +327,41 @@ public class EmployeeControllerTest {
      // Verify the service method is called with the correct argument
         Mockito.verify(employeeService, Mockito.times(1)).findDataBySearchEmployee(Mockito.eq(employee));
     }
+
+    @Test
+    public void testGetEmployeesBySearchCriteria_whenEmployeeNotFound() throws Exception{
+        Employee employee = Employee.builder().empId(121L)
+                .name("Pramij").age(29).designation("Software Eng")
+                .phoneNumber(625662566L).salary(200000.0)
+                .addresses(Stream.of(new Address(20L, "Delhi", "441202", "UP", "India", null)).toList()).build();
+
+        Mockito.when(employeeService.findDataBySearchEmployee(employee))
+                .thenThrow(new EmployeeNotFoundException("Employee not found !!"));
+
+        String content = objectWriter.writeValueAsString(employee);
+      MvcResult mvcResult =  mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/searchbyquery").
+                      contentType(MediaType.APPLICATION_JSON)
+                      .content(content)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isNotFound()).andReturn();
+
+      Assertions.assertEquals(404, mvcResult.getResponse().getStatus());
+
+    }
+    @Test
+    public void testGetEmployeesBySearchCriteria_failure() throws Exception {
+        Employee employee = Employee.builder().empId(121L)
+                .name("Pramij").age(29).designation("Software Eng")
+                .phoneNumber(625662566L).salary(200000.0)
+                .addresses(Stream.of(new Address(20L, "Delhi", "441202", "UP", "India", null)).toList()).build();
+
+       Mockito.when(employeeService.findDataBySearchEmployee(employee)).thenThrow(new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR));
+
+        String content = objectWriter.writeValueAsString(employee);
+        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/searchbyquery")
+                        .contentType(MediaType.APPLICATION_JSON).content(content).accept(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isInternalServerError()).andReturn();
+
+        Assertions.assertEquals(500, mvcResult.getResponse().getStatus());
+    }
     }

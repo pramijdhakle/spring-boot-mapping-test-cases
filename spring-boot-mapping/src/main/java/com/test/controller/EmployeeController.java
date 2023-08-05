@@ -131,7 +131,9 @@ public class EmployeeController {
     }
 
     @GetMapping("/searchbyquery2")
-    public ResponseEntity<List<EmployeeDTO>> getEmployeeData(@RequestParam(value = "employeeId", required = false) Long empId, @RequestParam(value = "pinCode", required = false) String pinCode) throws EmployeeNotFoundException {
+    public ResponseEntity<List<EmployeeDTO>> getEmployeeData(@RequestParam(value = "employeeId", required = false) Long empId,
+                                                             @RequestParam(value = "pinCode", required = false) String pinCode)
+            throws EmployeeNotFoundException {
         try {
             List<EmployeeDTO> employeeDTOS = employeeService.getDataByQuery(empId, pinCode);
             return new ResponseEntity<>(employeeDTOS, HttpStatus.OK);
