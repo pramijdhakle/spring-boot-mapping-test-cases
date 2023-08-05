@@ -1,7 +1,6 @@
 package com.test.controller;
 
 import com.test.contants.Constants;
-import com.test.dto.CustomeResponse;
 import com.test.dto.EmployeeDTO;
 import com.test.exception.EmployeeInactiveException;
 import com.test.exception.EmployeeNotFoundException;
@@ -14,7 +13,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -131,9 +129,7 @@ public class EmployeeController {
     }
 
     @GetMapping("/searchbyquery2")
-    public ResponseEntity<List<EmployeeDTO>> getEmployeeData(@RequestParam(value = "employeeId", required = false) Long empId,
-                                                             @RequestParam(value = "pinCode", required = false) String pinCode)
-            throws EmployeeNotFoundException {
+    public ResponseEntity<List<EmployeeDTO>> getEmployeeData(@RequestParam(value = "employeeId", required = false) Long empId, @RequestParam(value = "pinCode", required = false) String pinCode) throws EmployeeNotFoundException {
         try {
             List<EmployeeDTO> employeeDTOS = employeeService.getDataByQuery(empId, pinCode);
             return new ResponseEntity<>(employeeDTOS, HttpStatus.OK);
@@ -152,6 +148,5 @@ public class EmployeeController {
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Data Not found", e);
         }
-
     }
 }

@@ -70,7 +70,9 @@ public class EmployeeControllerTest {
         employeeDTOS.add(employeeDTO2);
         Mockito.when(employeeService.getAllEmployee()).thenReturn(employeeDTOS);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/getAllEmployee").contentType(MediaType.APPLICATION_JSON)).andExpect(MockMvcResultMatchers.status().isOk()).andExpect(MockMvcResultMatchers.jsonPath("$", hasSize(2)))// "$" says -> check the entire Json
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/getAllEmployee").
+                        contentType(MediaType.APPLICATION_JSON)).andExpect(MockMvcResultMatchers.status().isOk()).
+                andExpect(MockMvcResultMatchers.jsonPath("$", hasSize(2)))// "$" says -> check the entire Json
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].name", is("Sunil")));// here we check the value of 2nd[1] record, name=Sunil
 
         // Assertions.assertEquals(200, mvcResult.getResponse().getStatus());
@@ -363,5 +365,111 @@ public class EmployeeControllerTest {
                 .andExpect(MockMvcResultMatchers.status().isInternalServerError()).andReturn();
 
         Assertions.assertEquals(500, mvcResult.getResponse().getStatus());
+    }
+
+    @Test
+    public void testGetEmployeeData() throws Exception{
+        Long empId =123L;
+        String pinCode = "441202";
+        EmployeeDTO employeeDTO = EmployeeDTO.builder().empId(empId)
+                .name("Pramij").age(29).designation("Software Eng")
+                .phoneNumber(625662566L).salary(200000.0)
+                .addresses(Stream.of(new Address(20L, "Delhi", pinCode, "UP", "India", null)).
+                        toList()).build();
+
+        List<EmployeeDTO> employeeDTOS = new ArrayList<>();
+        employeeDTOS.add(employeeDTO);
+        Mockito.when(employeeService.getDataByQuery(empId,pinCode)).thenReturn(employeeDTOS);
+
+        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/searchbyquery2")
+                        .param("employeeId",empId.toString())
+                        .param("pinCode", pinCode)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$", hasSize(1)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].empId",is(123)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].name").value(employeeDTO.getName()))
+                .andReturn();
+
+        Assertions.assertEquals(200, mvcResult.getResponse().getStatus());
+        Assertions.assertFalse(employeeDTOS.isEmpty());
+    }
+
+    @Test
+    public void testGetEmployeeData_whenEmployeeNotFound() throws Exception{
+        Long empId =123L;
+        String pinCode = "441202";
+        EmployeeDTO employeeDTO = EmployeeDTO.builder().empId(empId)
+                .name("Pramij").age(29).designation("Software Eng")
+                .phoneNumber(625662566L).salary(200000.0)
+                .addresses(Stream.of(new Address(20L, "Delhi", pinCode, "UP", "India", null)).
+                        toList()).build();
+        Mockito.when(employeeService.getDataByQuery(empId,pinCode)).thenThrow(new EmployeeNotFoundException("Employee not found !!"));
+
+       MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/searchbyquery2")
+                .param("employeeId",employeeDTO.getEmpId().toString())
+                .param("pinCode", pinCode).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isNotFound()).andReturn();
+
+       Assertions.assertEquals(404, mvcResult.getResponse().getStatus());
+    }
+
+    @Test
+    public void testGetEmployeeData_failure() throws Exception{
+        Long empId =123L;
+        String pinCode = "441202";
+        EmployeeDTO employeeDTO = EmployeeDTO.builder().empId(empId)
+                .name("Pramij").age(29).designation("Software Eng")
+                .phoneNumber(625662566L).salary(200000.0)
+                .addresses(Stream.of(new Address(20L, "Delhi", pinCode, "UP", "India", null)).
+                        toList()).build();
+        Mockito.when(employeeService.getDataByQuery(empId,pinCode)).thenThrow(new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR));
+
+       MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/searchbyquery2").param("employeeId",empId.toString())
+                .param("pinCode", pinCode).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isInternalServerError()).andReturn();
+
+       Assertions.assertEquals(500, mvcResult.getResponse().getStatus());
+
+    }
+
+    @Test
+    public void testGetByCity() throws Exception{
+        String city = "Mumbai";
+        EmployeeDTO employeeDTO = EmployeeDTO.builder().empId(123L)
+                .name("Pramij").age(29).designation("Software Eng")
+                .phoneNumber(625662566L).salary(200000.0)
+                .addresses(Stream.of(new Address(20L, city, "343434", "UP", "India", null)).
+                        toList()).build();
+        List<EmployeeDTO> employeeDTOS = Arrays.asList(employeeDTO,employeeDTO1);
+        Mockito.when(employeeService.findEmployeesByCity(city)).thenReturn(employeeDTOS);
+
+       MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/getByCity/{city}",city)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$",hasSize(2)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].empId").value(employeeDTO.getEmpId()))
+                .andReturn();
+
+       Assertions.assertEquals(200, mvcResult.getResponse().getStatus());
+       Assertions.assertFalse(employeeDTOS.isEmpty());
+    }
+    @Test
+    public void testGetByCity_failure() throws Exception{
+        String city = "Mumbai";
+        EmployeeDTO employeeDTO = EmployeeDTO.builder().empId(123L)
+                .name("Pramij").age(29).designation("Software Eng")
+                .phoneNumber(625662566L).salary(200000.0)
+                .addresses(Stream.of(new Address(20L, "Delhi", "343434", "UP", "India", null)).
+                        toList()).build();
+        List<EmployeeDTO> employeeDTOS = Arrays.asList(employeeDTO,employeeDTO1);
+
+        Mockito.when(employeeService.findEmployeesByCity(city)).thenThrow(new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR));
+
+      MvcResult mvcResult =  mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/getByCity/{city}",city)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isInternalServerError()).andReturn();
+
+      Assertions.assertEquals(500, mvcResult.getResponse().getStatus());
     }
     }
