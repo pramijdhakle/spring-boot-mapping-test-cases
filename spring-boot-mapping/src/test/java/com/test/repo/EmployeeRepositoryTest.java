@@ -1,5 +1,6 @@
 package com.test.repo;
 
+import com.test.model.Address;
 import com.test.model.Employee;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -8,7 +9,11 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 public class EmployeeRepositoryTest {
 
@@ -55,6 +60,27 @@ public class EmployeeRepositoryTest {
 
         // Verify that the JpaRepository findDataByName method was called with the correct parameter
         Mockito.verify(employeeRepository).findDataByName(nonExistingName);
+    }
+
+    @Test
+    public void testFindEmployeesByCity_success() {
+        String existingCity = "Pune";
+        Employee employee = Employee.builder().empId(123L).name("Pramij").age(29).addresses(Stream.of(new Address(2L, existingCity, "123123", "Maha", "Ind", null), new Address(3L, "Bengal", "441212", "12321", "Ind", null)).toList()).build();
+        List<Employee> employees = Collections.singletonList(employee);
+        Mockito.when(employeeRepository.findEmployeesByCity(existingCity)).thenReturn(employees);
+        List<Employee> employeeList = employeeRepository.findEmployeesByCity(existingCity);
+        Assertions.assertFalse(employees.isEmpty());
+        Assertions.assertEquals(1, employeeList.size());
+        Mockito.verify(employeeRepository).findEmployeesByCity(existingCity);
+    }
+
+    @Test
+    public void testFindEmployeesByCity_NonExistingCity(){
+        String nonExistingCity = "Delhi";
+        Mockito.when(employeeRepository.findEmployeesByCity(nonExistingCity)).thenReturn(Collections.EMPTY_LIST);
+        List<Employee> employees = employeeRepository.findEmployeesByCity(nonExistingCity);
+        Assertions.assertTrue(employees.isEmpty());
+        Mockito.verify(employeeRepository).findEmployeesByCity(nonExistingCity);
     }
 
 }

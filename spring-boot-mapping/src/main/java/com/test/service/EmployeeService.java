@@ -1,5 +1,6 @@
 package com.test.service;
 
+import com.test.dto.CustomeResponse;
 import com.test.dto.EmployeeDTO;
 import com.test.exception.EmployeeInactiveException;
 import com.test.exception.EmployeeNotFoundException;
@@ -25,5 +26,9 @@ public interface EmployeeService {
 
     List<EmployeeDTO> findDataBySearchEmployee(Employee employee) throws EmployeeNotFoundException;
 
-    List<EmployeeDTO> getDataByQuery(Long empId, String pinCode);
+    List<EmployeeDTO> getDataByQuery(Long empId, String pinCode) throws EmployeeNotFoundException;
+
+    public List<EmployeeDTO> findEmployeesByCity(String city) throws EmployeeNotFoundException;
+
+
 }
