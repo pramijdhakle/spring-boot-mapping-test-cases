@@ -3,6 +3,7 @@ package com.test.serviceimpl;
 import com.test.dto.EmployeeDTO;
 import com.test.exception.EmployeeInactiveException;
 import com.test.exception.EmployeeNotFoundException;
+import com.test.model.Address;
 import com.test.model.Employee;
 import com.test.repo.EmployeeRepository;
 import com.test.service.AddressService;
@@ -106,7 +107,10 @@ public class EmployeeServiceImpl implements EmployeeService {
     public List<EmployeeDTO> getDataByAnyInput(EmployeeDTO employee) {
         List<Employee> employees = employeeRepository.findAll();
 
-        List<EmployeeDTO> employeeDTO1 = employees.stream().map(mapToDto -> modelMapper.map(mapToDto, EmployeeDTO.class)).filter(employeeDTO -> employeeDTO.getEmpId() == employee.getEmpId() || employeeDTO.getName().equals(employee.getName()) || employeeDTO.getActive().equals(employee.getActive()) || employeeDTO.getAge() == employee.getAge() || employeeDTO.getDesignation().equals(employee.getDesignation()) || employeeDTO.getPhoneNumber() == employee.getPhoneNumber() || employeeDTO.getSalary() == employee.getSalary() || employeeDTO.getAddresses().equals(employee.getAddresses())).collect(Collectors.toList());
+        List<EmployeeDTO> employeeDTO1 = employees.stream().
+                map(mapToDto -> modelMapper.map(mapToDto, EmployeeDTO.class))
+                .filter(employeeDTO -> employeeDTO.getEmpId() == employee.getEmpId() ||
+                        employeeDTO.getName().equals(employee.getName()) || employeeDTO.getActive().equals(employee.getActive()) || employeeDTO.getAge() == employee.getAge() || employeeDTO.getDesignation().equals(employee.getDesignation()) || employeeDTO.getPhoneNumber() == employee.getPhoneNumber() || employeeDTO.getSalary() == employee.getSalary() || employeeDTO.getAddresses().equals(employee.getAddresses())).collect(Collectors.toList());
 
         return employeeDTO1;
     }
@@ -143,7 +147,8 @@ public class EmployeeServiceImpl implements EmployeeService {
      */
     @Override
     public List<EmployeeDTO> findDataBySearchEmployee(Employee employee) throws EmployeeNotFoundException {
-        List<Employee> employeeList = employeeRepository.findDataBySearchEmployee(employee.getName(), employee.getAge(), employee.getDesignation(), employee.getActive());
+        List<Employee> employeeList = employeeRepository.findDataBySearchEmployee(employee.getName(),
+                employee.getAge(), employee.getDesignation(), employee.getActive());
         if (employeeList.isEmpty()) {
             throw new EmployeeNotFoundException("Employee not found for the given input !!");
         } else {
