@@ -6,6 +6,11 @@ import com.test.exception.EmployeeInactiveException;
 import com.test.exception.EmployeeNotFoundException;
 import com.test.model.Employee;
 import com.test.service.EmployeeService;
+import com.test.serviceimpl.EmployeeServiceImpl;
+import io.swagger.annotations.Api;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +21,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1")
+@Api(tags = "Employee API")
 public class EmployeeController {
     private final EmployeeService employeeService;
     private final ModelMapper modelMapper;
@@ -89,6 +95,13 @@ public class EmployeeController {
         }
     }
 
+    @Operation(summary = "Gets Employee by ID", description = "Employee must exist")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Ok"),
+            @ApiResponse(responseCode = "404", description = "Employee not found"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+
+    })
     @GetMapping("/getbyid/{employeeId}")
     public ResponseEntity<EmployeeDTO> getDataByEmployeeId(@PathVariable(value = "employeeId") Long empId) throws EmployeeNotFoundException {
         try {
